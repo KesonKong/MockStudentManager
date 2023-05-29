@@ -4,7 +4,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using MockStudentManager.Models;
+using StudentManager.IRepository;
+using StudentManager.Repository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,7 @@ namespace MockStudentManager
 
         public Startup(IConfiguration configration)
         {
+            //通过IConfiguration 读取appsettings的Key值
             _configration = configration;
         }
 
@@ -27,15 +29,14 @@ namespace MockStudentManager
         public void ConfigureServices(IServiceCollection services)
         {
             //添加MVC服务
+            //AddXmlSerializerFormatters将XML序列化程序格式化程序添加到MVC中
             services.AddMvc().AddXmlSerializerFormatters();
             
 
             //依赖注入绑定接口与实现
-            services.AddSingleton<IStudentRepository, MockStudentRepository>();
-
-            //services.AddScoped<IStudentRepository, MockStudentRepository>();
-
-            //services.AddTransient<IStudentRepository, MockStudentRepository>();
+            services.AddSingleton<IStudentRepository, StudentRepository>();
+            //services.AddScoped<IStudentRepository, StudentRepository>();
+            //services.AddTransient<IStudentRepository, StudentRepository>();
 
 
         }
@@ -117,6 +118,7 @@ namespace MockStudentManager
             //app.Run 是终端中间件，会使整个管道短路，从而不会调用管道中后续的中间件
             app.Run(async (context) =>
             {
+                //处理中文乱码
                 context.Response.ContentType = "text/plain;charset=utf-8";
                 //获取进程名
                 //var processName = System.Diagnostics.Process.GetCurrentProcess().ProcessName;

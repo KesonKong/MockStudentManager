@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using StudentManager.DBModels;
+using System;
+using System.Collections.Generic;
 
-namespace MockStudentManager.Models
+namespace StudentManager.IRepository
 {
     public interface IStudentRepository
     {

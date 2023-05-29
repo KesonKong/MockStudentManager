@@ -1,4 +1,4 @@
-﻿using MockStudentManager.Models;
+﻿using StudentManager.DBModels;
 
 namespace MockStudentManager.ViewModels
 {

@@ -1,8 +1,7 @@
-﻿namespace MockStudentManager.Models
+﻿using System;
+
+namespace StudentManager.DBModels
 {
-    /// <summary>
-    /// 学生模型
-    /// </summary>
     public class Student
     {
         public int Id { get; set; }

@@ -1,7 +1,7 @@
-﻿using ClassLibrary1;
-using Microsoft.AspNetCore.Mvc;
-using MockStudentManager.Models;
+﻿using Microsoft.AspNetCore.Mvc;
 using MockStudentManager.ViewModels;
+using StudentManager.DBModels;
+using StudentManager.IRepository;
 using System.Collections.Generic;
 
 namespace MockStudentManager.Controllers
