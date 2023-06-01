@@ -37,10 +37,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="wwwroot\images\" />
-	</ItemGroup>
-
-	<ItemGroup>
 	  <ProjectReference Include="..\StudentManager.Repository\StudentManager.Repository.csproj" />
 	</ItemGroup>
 

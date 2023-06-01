@@ -28,18 +28,40 @@ namespace MockStudentManager.Controllers
 
 
         public IActionResult Detail(int? Id)
-        { 
-
+        {
+            //return $"id={Id},并且名字为{name}";
             HomeDetailsViewModel homeDetailsViewModel = new HomeDetailsViewModel()
             {
-                student = _studentRepository.GetStudent(Id??1),
+                student = _studentRepository.GetStudent(Id ?? 1),
                 PageTitle = "学生详情"
             };
+
             //ViewData["PageTitle"] = "学生详情";
             //ViewData["Student"] = model;
 
 
             return View(homeDetailsViewModel);
+        }
+
+        [HttpGet]
+        public IActionResult Create()
+        { 
+            return View();
+
+        }
+
+        [HttpPost]
+        public IActionResult Create(Student student)
+        {
+            if (ModelState.IsValid)
+            {
+                Student newstudent = _studentRepository.Add(student);
+                //return RedirectToAction("Detail", new { Id = newstudent.Id });
+            }
+
+            return View();
+
+
         }
     }
 }

@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using StudentManager.DBModels;
 using StudentManager.IRepository;
 using StudentManager.Repository;
 using System;
@@ -28,13 +31,17 @@ namespace MockStudentManager
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            //添加数据库服务 建议使用AddDbContextPool
+            services.AddDbContextPool<AppDbContext>(
+                options=>options.UseSqlServer(_configration.GetConnectionString("StudentDbConnection"))
+                );
+
             //添加MVC服务
             //AddXmlSerializerFormatters将XML序列化程序格式化程序添加到MVC中
             services.AddMvc().AddXmlSerializerFormatters();
-            
 
             //依赖注入绑定接口与实现
-            services.AddSingleton<IStudentRepository, StudentRepository>();
+            services.AddSingleton<IStudentRepository, SQLStudentRepository>();
             //services.AddScoped<IStudentRepository, StudentRepository>();
             //services.AddTransient<IStudentRepository, StudentRepository>();
 
@@ -67,7 +74,7 @@ namespace MockStudentManager
             //app.UseDefaultFiles(defaultFilesOptions);
 
 
-            //添加静态文件中间件
+            //添加静态文件中间件 wwwroot
             app.UseStaticFiles();
 
             //添加MVC中间件 MVC默认路由，需要添加在UseStaticFiles 后面
