@@ -14,6 +14,11 @@ namespace StudentManager.DBModels
 
         public DbSet<Student> Students { get; set; }
 
+        //初始表数据化数据
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Seed();
+        }
 
     }
 }

@@ -3,20 +3,27 @@ using MockStudentManager.ViewModels;
 using StudentManager.DBModels;
 using StudentManager.IRepository;
 using System.Collections.Generic;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Microsoft.AspNetCore.Hosting.Internal;
+using System.IO;
+using System;
 
 namespace MockStudentManager.Controllers
 {
     public class HomeController : Controller
     {
         private readonly IStudentRepository _studentRepository;
+        private readonly HostingEnvironment hostingEnvironment;
 
         /// <summary>
         /// 依赖注入
         /// </summary>
         /// <param name="studentRepository"></param>
-        public HomeController(IStudentRepository studentRepository)
+        public HomeController(IStudentRepository studentRepository, HostingEnvironment hostingEnvironment)
         {
             _studentRepository = studentRepository;
+            this.hostingEnvironment = hostingEnvironment;
         }
 
         public IActionResult Index()
@@ -51,17 +58,45 @@ namespace MockStudentManager.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(Student student)
+        public IActionResult Create(StudentCreateViewModel student)
         {
             if (ModelState.IsValid)
             {
-                Student newstudent = _studentRepository.Add(student);
-                //return RedirectToAction("Detail", new { Id = newstudent.Id });
+                string uniqueFileName = null;
+                if (student.Photos != null)
+                {
+                    string uploadFolder = Path.Combine(hostingEnvironment.WebRootPath,"images");
+                    uniqueFileName = Guid.NewGuid().ToString() + "_" + student.Photos[0].FileName;
+                    string filePath = Path.Combine(uploadFolder,uniqueFileName);
+                    student.Photos[0].CopyTo(new FileStream(filePath, FileMode.Create));
+                }
+
+                Student newstudent = new Student() {
+                    Name = student.Name,
+                    Email = student.Email,
+                    ClassName = student.ClassName,
+                    PhotoPath = uniqueFileName
+                };
+
+                _studentRepository.Add(newstudent);
+
+                //return View(newstudent);
+
+                return RedirectToAction("Detail", new { Id = newstudent.Id });
             }
 
             return View();
 
 
+        }
+
+        public string JsonString() {
+
+            IEnumerable<Student> students = _studentRepository.GetAllStudents();
+            string strJson = JsonConvert.SerializeObject(students);
+            List<Student> list = JsonConvert.DeserializeObject<List<Student>>(strJson);
+
+            return strJson;
         }
     }
 }

@@ -1,11 +1,10 @@
-﻿
-@model Student
+﻿@model StudentCreateViewModel
 @{
     ViewBag.Title = "新增学生";
 }
 @inject StudentManager.IRepository.IStudentRepository _studentRespository
 
-<form asp-controller="home" asp-action="create"  method="post" class="mt-3">
+<form enctype="multipart/form-data" asp-controller="home" asp-action="create"  method="post" class="mt-3">
     <div asp-validation-summary="All" class="text-bg-danger">
 
     </div>
@@ -30,13 +29,22 @@
         <label asp-for="ClassName" class="col-sm-2 col-form-label"></label>
 
         <div class="col-sm-10">
-            <select asp-for="ClassName" asp-items="Html.GetEnumSelectList<ClassNameEnum>()" class="form-control form-select">
+            <select asp-for="ClassName" asp-items="@Html.GetEnumSelectList<ClassNameEnum>()" class="form-control form-select">
                 <option value="">请选择</option>
             </select>
             <span asp-validation-for="ClassName" class="text-bg-danger"></span>
         </div>
     </div>
 
+    <div class="form-group row mt-3">
+        <label asp-for="Photos" class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+            <div class="custom-file">
+                <input asp-for="Photos" type="file" class="form-control custom-file-input" />
+                <lable class="custom-file-lable">请选择照片...</lable>
+            </div>
+        </div>
+    </div>
 
     <div class="form-group row mt-3">
         <div class="col-sm-10">
@@ -44,10 +52,25 @@
         </div>
     </div>
 
-    <div class="form-group row mt-3">
+    @*<div class="form-group row mt-3">
         <div class="col-sm-10">
            学生信息总人数：@_studentRespository.GetAllStudents().Count().ToString()
         </div>
-    </div>
+    </div>*@
+
+    @section Scripts{
+    
+        <script type="text/javascript">
+            $(document).ready(function(){
+                $('.custom-file-input').on("change",function(){
+
+                    var fileName = $(this).val().split("\\").pop();
+                    $(this).next(".custom-file-lable").html(fileName);
+                });
+            }
+            );
+        </script>
+
+    }
 
 </form>

@@ -7,7 +7,11 @@
 
     <environment include="Development">
         <!--include 当前环境包含-->
-        <link href="~/lib/twitter-bootstrap/css/bootstrap.css" rel="stylesheet" />
+        <!-- CSS -->
+        
+        <link href="~/lib/twitter-bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+        <link href="~/css/site.css" rel="stylesheet" />
+
     </environment>
 
     <environment exclude="Development"> 
@@ -46,8 +50,6 @@
 
         @RenderBody()
     </div>
-
-
     <script src="~/lib/jquery/jquery.min.js"></script>
     <script src="~/lib/twitter-bootstrap/js/bootstrap.min.js"></script>
     @RenderSection("Scripts",false)

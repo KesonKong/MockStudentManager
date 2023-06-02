@@ -41,9 +41,9 @@ namespace MockStudentManager
             services.AddMvc().AddXmlSerializerFormatters();
 
             //依赖注入绑定接口与实现
-            services.AddSingleton<IStudentRepository, SQLStudentRepository>();
+            //services.AddSingleton<IStudentRepository, SQLStudentRepository>();
             //services.AddScoped<IStudentRepository, StudentRepository>();
-            //services.AddTransient<IStudentRepository, StudentRepository>();
+            services.AddTransient<IStudentRepository, SQLStudentRepository>();
 
 
         }
