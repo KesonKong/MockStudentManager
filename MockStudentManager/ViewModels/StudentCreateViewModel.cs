@@ -8,7 +8,6 @@ namespace MockStudentManager.ViewModels
 {
     public class StudentCreateViewModel
     {
-        public int Id { get; set; }
 
         [Display(Name = "姓名")]
         [Required(ErrorMessage = "请输入名字")]

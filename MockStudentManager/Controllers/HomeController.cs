@@ -62,16 +62,9 @@ namespace MockStudentManager.Controllers
         {
             if (ModelState.IsValid)
             {
-                string uniqueFileName = null;
-                if (student.Photos != null)
-                {
-                    string uploadFolder = Path.Combine(hostingEnvironment.WebRootPath,"images");
-                    uniqueFileName = Guid.NewGuid().ToString() + "_" + student.Photos[0].FileName;
-                    string filePath = Path.Combine(uploadFolder,uniqueFileName);
-                    student.Photos[0].CopyTo(new FileStream(filePath, FileMode.Create));
-                }
+                string uniqueFileName = ProcessUploadFile(student);
 
-                Student newstudent = new Student() {
+                Student newstudent = new Student{
                     Name = student.Name,
                     Email = student.Email,
                     ClassName = student.ClassName,
@@ -90,6 +83,52 @@ namespace MockStudentManager.Controllers
 
         }
 
+
+        [HttpGet]
+        public ViewResult Edit(int? Id)
+        {
+            Student student = _studentRepository.GetStudent(Id.Value);
+
+            StudentEditViewModel studentEditView = new StudentEditViewModel
+            {
+                Id = student.Id,
+                Name = student.Name,
+                Email = student.Email,
+                ClassName = student.ClassName,
+                ExistingPhotoPath = student.PhotoPath
+            };
+
+            return View(studentEditView);
+        }
+
+        [HttpPost]
+        public IActionResult Edit(StudentEditViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                Student student = _studentRepository.GetStudent(model.Id);
+
+                if (student != null)
+                {
+                    student.Email = model.Email;
+                    student.ClassName = model.ClassName;
+                    student.Name = model.Name;
+
+                    if (model.ExistingPhotoPath != null)
+                    {
+                        string filePath = Path.Combine(hostingEnvironment.WebRootPath, "images", model.ExistingPhotoPath);
+                        System.IO.File.Delete(filePath);
+                    }
+                    student.PhotoPath = ProcessUploadFile(model);
+
+                    Student updatestudeng = _studentRepository.Update(student);
+                    return RedirectToAction("Index");
+                }
+
+            }
+            return View();
+        }
+
         public string JsonString() {
 
             IEnumerable<Student> students = _studentRepository.GetAllStudents();
@@ -97,6 +136,34 @@ namespace MockStudentManager.Controllers
             List<Student> list = JsonConvert.DeserializeObject<List<Student>>(strJson);
 
             return strJson;
+        }
+
+        /// <summary>
+        /// 将照片保存到指订的路径，并返回唯一的文件名
+        /// </summary>
+        /// <returns></returns>
+        private string ProcessUploadFile(StudentCreateViewModel model)
+        {
+            string uniqueFileName = null;
+            if (model.Photos != null && model.Photos.Count > 0)
+            {
+                foreach (var photo in model.Photos)
+                {
+                    //必须将图片路径上传到wwwroot文件夹中
+                    //要获取wwwroot文件路径，需要使用APS.NET Core提供的 HostingEnvironment 服务
+                    string uploadFolder = Path.Combine(hostingEnvironment.WebRootPath, "images");
+                    uniqueFileName = Guid.NewGuid().ToString() + "_" + model.Photos[0].FileName;
+                    string filePath = Path.Combine(uploadFolder, uniqueFileName);
+                    //使用IFormFile接口提供的CopyTo()方法，将文件复制到wwwroot/images文件夹
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        photo.CopyTo(fileStream);
+                    }
+                }
+                
+            }
+
+            return uniqueFileName;
         }
     }
 }

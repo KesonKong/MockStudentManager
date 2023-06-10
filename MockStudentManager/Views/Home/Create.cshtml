@@ -40,8 +40,8 @@
         <label asp-for="Photos" class="col-sm-2 col-form-label"></label>
         <div class="col-sm-10">
             <div class="custom-file">
-                <input asp-for="Photos" type="file" class="form-control custom-file-input" />
-                <lable class="custom-file-lable">请选择照片...</lable>
+                <input asp-for="Photos" multiple type="file" class="form-control custom-file-input" />
+                @*<lable class="custom-file-lable">请选择照片...</lable>*@
             </div>
         </div>
     </div>
@@ -58,19 +58,5 @@
         </div>
     </div>*@
 
-    @section Scripts{
-    
-        <script type="text/javascript">
-            $(document).ready(function(){
-                $('.custom-file-input').on("change",function(){
-
-                    var fileName = $(this).val().split("\\").pop();
-                    $(this).next(".custom-file-lable").html(fileName);
-                });
-            }
-            );
-        </script>
-
-    }
 
 </form>

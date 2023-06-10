@@ -46,6 +46,7 @@ namespace StudentManager.Repository
         {
             var student =  context.Students.Attach(updatestudent);
             student.State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+            context.SaveChanges();
             return updatestudent;
         }
     }
