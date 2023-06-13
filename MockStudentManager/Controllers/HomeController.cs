@@ -8,6 +8,7 @@ using Newtonsoft.Json.Linq;
 using Microsoft.AspNetCore.Hosting.Internal;
 using System.IO;
 using System;
+using Microsoft.Extensions.Logging;
 
 namespace MockStudentManager.Controllers
 {
@@ -15,15 +16,17 @@ namespace MockStudentManager.Controllers
     {
         private readonly IStudentRepository _studentRepository;
         private readonly HostingEnvironment hostingEnvironment;
+        private readonly ILogger logger;
 
         /// <summary>
         /// 依赖注入
         /// </summary>
         /// <param name="studentRepository"></param>
-        public HomeController(IStudentRepository studentRepository, HostingEnvironment hostingEnvironment)
+        public HomeController(IStudentRepository studentRepository, HostingEnvironment hostingEnvironment,ILogger<HomeController> logger)
         {
             _studentRepository = studentRepository;
             this.hostingEnvironment = hostingEnvironment;
+            this.logger = logger;
         }
 
         public IActionResult Index()
@@ -36,18 +39,39 @@ namespace MockStudentManager.Controllers
 
         public IActionResult Detail(int? Id)
         {
+            logger.LogTrace("Trace跟踪Log");
+            logger.LogDebug("Debug调试Log");
+            logger.LogInformation("Information信息Log");
+            logger.LogWarning("Warning警告Log");
+            logger.LogError("Error错误Log");
+            logger.LogCritical("Critical严重Log");
+
+            //throw new Exception("此异常发生在Detail中");
+
             //return $"id={Id},并且名字为{name}";
+            Student stu = _studentRepository.GetStudent(Id ?? 1);
+
+            if (stu == null)
+            {
+                Response.StatusCode = 404;
+                return View("StudentNotFound", Id);
+            }
+
             HomeDetailsViewModel homeDetailsViewModel = new HomeDetailsViewModel()
             {
-                student = _studentRepository.GetStudent(Id ?? 1),
+                student = stu,
                 PageTitle = "学生详情"
             };
 
             //ViewData["PageTitle"] = "学生详情";
             //ViewData["Student"] = model;
 
-
             return View(homeDetailsViewModel);
+        }
+
+        public IActionResult StudentNotFound()
+        { 
+            return View();
         }
 
         [HttpGet]

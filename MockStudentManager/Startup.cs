@@ -58,9 +58,19 @@ namespace MockStudentManager
                 //开发人员报错页面
                 app.UseDeveloperExceptionPage(developerExceptionPageOptions);
             }
-            else if(env.IsProduction() || env.IsStaging() || env.IsEnvironment("UAT")) //开生产环境，预发布环境，UAT环境 
+            else if (env.IsProduction() || env.IsStaging() || env.IsEnvironment("UAT")) //开生产环境，预发布环境，UAT环境 
             {
+                //错误状态提示页面
+                //app.UseStatusCodePages();
+
+                //拦截我们的异常
                 app.UseExceptionHandler("/Error");
+
+                //跳转到错误页面,重定向，覆盖正确的StatusCode
+                //app.UseStatusCodePagesWithRedirects("/Error/{0}");
+
+                //重定向，返回正确的StatusCode，拦截404找不到页面信息
+                app.UseStatusCodePagesWithReExecute("/Error/{0}");
             }
 
             ////添加指定起始页
@@ -123,10 +133,10 @@ namespace MockStudentManager
 
             //Hello World
             //app.Run 是终端中间件，会使整个管道短路，从而不会调用管道中后续的中间件
-            app.Run(async (context) =>
-            {
+            //app.Run(async (context) =>
+            //{
                 //处理中文乱码
-                context.Response.ContentType = "text/plain;charset=utf-8";
+                //context.Response.ContentType = "text/plain;charset=utf-8";
                 //获取进程名
                 //var processName = System.Diagnostics.Process.GetCurrentProcess().ProcessName;
 
@@ -141,9 +151,9 @@ namespace MockStudentManager
 
                 //logger.LogInformation("M3处理请求并生成响应");
 
-                await context.Response.WriteAsync("Hosting Enviroment:" + env.EnvironmentName);
+                //await context.Response.WriteAsync("Hosting Enviroment:" + env.EnvironmentName);
 
-            });
+            //});
 
         }
     }

@@ -1,0 +1,28 @@
+﻿@{
+    ViewBag.Title = "异常错误页面";
+}
+
+
+<h3>程序请求时发生内部错误，我们会反馈给开发团队，尽快解决</h3>
+<h3>请联系kclkeson@126.com</h3>
+<h3>错误详情</h3>
+
+<div class="alert alert-danger">
+    <h5>异常路径</h5>
+    <hr />
+    <p>@ViewBag.Path</p>
+</div>
+
+<div class="alert alert-danger">
+
+    <h5>异常信息</h5>
+    <hr />
+    <p>@ViewBag.Messate</p>
+</div>
+
+<div class="alert alert-danger">
+
+    <h5>异常堆栈跟踪</h5>
+    <hr />
+    <p>@ViewBag.StackTrace</p>
+</div>

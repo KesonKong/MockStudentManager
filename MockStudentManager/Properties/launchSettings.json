@@ -3,7 +3,7 @@
     "windowsAuthentication": false, 
     "anonymousAuthentication": true, 
     "iisExpress": {
-      "applicationUrl": "http://localhost:5000",
+      "applicationUrl": "http://localhost:5002",
       "sslPort": 0
     }
   },
@@ -12,14 +12,16 @@
       "commandName": "IISExpress",
       "launchBrowser": true,
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
+        //"ASPNETCORE_ENVIRONMENT": "Development",  //开发环境
+        //"ASPNETCORE_ENVIRONMENT": "Staging",  //预发布环境
+        "ASPNETCORE_ENVIRONMENT": "Production", //生产环境
         "MyKey": "appsettings.lunchSettings.json中MyKey的值"
       }
     },
     "MockStudentManager": {
       "commandName": "Project",
       "launchBrowser": true,
-      "applicationUrl": "http://localhost:5000",
+      "applicationUrl": "http://localhost:5001",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
