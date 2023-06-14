@@ -1,4 +1,5 @@
-﻿using StudentManager.DBModels;
+﻿using Microsoft.Extensions.Logging;
+using StudentManager.DBModels;
 using StudentManager.IRepository;
 using System;
 using System.Collections.Generic;
@@ -9,10 +10,12 @@ namespace StudentManager.Repository
     public class SQLStudentRepository : IStudentRepository
     {
         private readonly AppDbContext context;
+        private readonly ILogger<SQLStudentRepository> logger;
 
-        public SQLStudentRepository(AppDbContext context)
+        public SQLStudentRepository(AppDbContext context, ILogger<SQLStudentRepository> logger)
         {
             this.context = context;
+            this.logger = logger;
         }
 
         public Student Add(Student student)
@@ -34,6 +37,13 @@ namespace StudentManager.Repository
 
         public IEnumerable<Student> GetAllStudents()
         {
+            logger.LogTrace("Trace跟踪Log");
+            logger.LogDebug("Debug调试Log");
+            logger.LogInformation("Information信息Log");
+            logger.LogWarning("Warning警告Log");
+            logger.LogError("Error错误Log");
+            logger.LogCritical("Critical严重Log");
+
             return context.Students;
         }
 

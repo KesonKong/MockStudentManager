@@ -12,9 +12,9 @@
       "commandName": "IISExpress",
       "launchBrowser": true,
       "environmentVariables": {
-        //"ASPNETCORE_ENVIRONMENT": "Development",  //开发环境
+        "ASPNETCORE_ENVIRONMENT": "Development",  //开发环境
         //"ASPNETCORE_ENVIRONMENT": "Staging",  //预发布环境
-        "ASPNETCORE_ENVIRONMENT": "Production", //生产环境
+        //"ASPNETCORE_ENVIRONMENT": "Production", //生产环境
         "MyKey": "appsettings.lunchSettings.json中MyKey的值"
       }
     },
