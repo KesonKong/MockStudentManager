@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StudentManager.Repository",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StudentManager.DBModels", "StudentManager.DBModels\StudentManager.DBModels.csproj", "{3DF85980-BF4C-4229-BD01-72FD592BA6CF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorStudentManager", "BlazorStudentManager\BlazorStudentManager.csproj", "{2DADDF58-5EBA-478D-8E9F-539D53B39318}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{3DF85980-BF4C-4229-BD01-72FD592BA6CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3DF85980-BF4C-4229-BD01-72FD592BA6CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3DF85980-BF4C-4229-BD01-72FD592BA6CF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2DADDF58-5EBA-478D-8E9F-539D53B39318}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2DADDF58-5EBA-478D-8E9F-539D53B39318}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2DADDF58-5EBA-478D-8E9F-539D53B39318}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2DADDF58-5EBA-478D-8E9F-539D53B39318}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -29,6 +29,9 @@
 </head>
 <body>
     <div class="container">
+        @using Microsoft.AspNetCore.Identity;
+        @using StudentManager.DBModels.Models;
+        @inject SignInManager<ApplicationUser> SignInManager;
         <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
             <a class="navbar-brand" asp-controller="home" asp-action="Index">
                 <img src="~/images/tx.jpg" width="30" height="30" alt="Alternate Text" asp-append-version="true" />
@@ -44,14 +47,42 @@
                     <li class="nav-item">
                         <a class="nav-link" asp-controller="home" asp-action="Create">添加学生</a>
                     </li>
+                    @if (SignInManager.IsSignedIn(User) && User.IsInRole("管理员"))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="admin" asp-action="ListRoles">角色管理</a>
+                        </li>
+                    }
+                </ul>
+                <ul class="navbar-nav ms-auto">
+                    @if (SignInManager.IsSignedIn(User))
+                    {
+                        <li class="nav-item">
+                            <form asp-controller="account" asp-action="logout" method="post">
+                                <button type="submit" class="nav-link btn btn-link py-0" style="width:auto">注销 @User.Identity.Name</button>
+                            </form>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="account" asp-action="Register">注册</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="account" asp-action="Login">登录</a>
+                        </li>
+                    }
                 </ul>
             </div>
         </nav>
 
         @RenderBody()
     </div>
-    <script src="~/lib/jquery/jquery.min.js"></script>
-    <script src="~/lib/twitter-bootstrap/js/bootstrap.min.js"></script>
+    <script src="~/lib/jquery/jquery.min.js" asp-append-version="true"></script>
+    <script src="~/lib/twitter-bootstrap/js/bootstrap.min.js" asp-append-version="true"></script>
+    @*jquery.validate.min.js,jquery.validate.unobtrusive.min.js 实现客户端验证*@
+    <script src="~/lib/jquery-validate/jquery.validate.min.js" asp-append-version="true"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js" asp-append-version="true"></script>
     @RenderSection("Scripts",false)
 </body>
 </html>

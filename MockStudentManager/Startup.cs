@@ -1,12 +1,18 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MockStudentManager.Middlewares;
 using StudentManager.DBModels;
+using StudentManager.DBModels.Models;
 using StudentManager.IRepository;
 using StudentManager.Repository;
 using System;
@@ -36,9 +42,27 @@ namespace MockStudentManager
                 options=>options.UseSqlServer(_configration.GetConnectionString("StudentDbConnection"))
                 );
 
+            //设置密码规则
+            services.Configure<IdentityOptions>(option => {
+                option.Password.RequiredLength = 6;
+                option.Password.RequireNonAlphanumeric = false;
+                option.Password.RequireUppercase = false;
+            });
+
+            //添加身份验证服务
+            services.AddIdentity<ApplicationUser, IdentityRole>()
+                .AddErrorDescriber<CustomIdentityErrorDescriber>() //重写了认证重复信息
+                .AddEntityFrameworkStores<AppDbContext>();
+            
             //添加MVC服务
             //AddXmlSerializerFormatters将XML序列化程序格式化程序添加到MVC中
-            services.AddMvc().AddXmlSerializerFormatters();
+            services.AddMvc(config=>
+            {
+                //设置全局的认证，所有的控制系统都需要登录认证
+                var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+                config.Filters.Add(new AuthorizeFilter(policy));
+
+            }).AddXmlSerializerFormatters();
 
             //依赖注入绑定接口与实现
             //services.AddSingleton<IStudentRepository, SQLStudentRepository>();
@@ -87,9 +111,11 @@ namespace MockStudentManager
             //添加静态文件中间件 wwwroot
             app.UseStaticFiles();
 
+            //添加用户身份证人授权
+            app.UseAuthentication();
+
             //添加MVC中间件 MVC默认路由，需要添加在UseStaticFiles 后面
             //app.UseMvcWithDefaultRoute();
-
             //自定义MVC路由信息
             app.UseMvc(routes =>
             {

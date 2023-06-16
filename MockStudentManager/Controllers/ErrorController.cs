@@ -56,5 +56,12 @@ namespace MockStudentManager.Controllers
             return View("Error");
 
         }
+
+        [AllowAnonymous]
+        public IActionResult NotFound()
+        {
+            return View();
+        }
+
     }
 }

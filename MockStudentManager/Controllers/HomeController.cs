@@ -9,9 +9,11 @@ using Microsoft.AspNetCore.Hosting.Internal;
 using System.IO;
 using System;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MockStudentManager.Controllers
 {
+    [Authorize] //Identity授权
     public class HomeController : Controller
     {
         private readonly IStudentRepository _studentRepository;
