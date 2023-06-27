@@ -30,7 +30,6 @@
 <body>
     <div class="container">
         @using Microsoft.AspNetCore.Identity;
-        @using StudentManager.DBModels.Models;
         @inject SignInManager<ApplicationUser> SignInManager;
         <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
             <a class="navbar-brand" asp-controller="home" asp-action="Index">
@@ -49,12 +48,16 @@
                     </li>
                     @if (SignInManager.IsSignedIn(User) && User.IsInRole("管理员"))
                     {
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="admin" asp-action="ListRoles">角色管理</a>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" aria-expanded="false">系统管理</a>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" asp-controller="admin" asp-action="ListRoles">角色管理</a>
+                                <a class="dropdown-item" asp-controller="admin" asp-action="ListUsers">用户列表</a>
+                            </div>
                         </li>
                     }
                 </ul>
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav">
                     @if (SignInManager.IsSignedIn(User))
                     {
                         <li class="nav-item">

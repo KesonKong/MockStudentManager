@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
 
-namespace StudentManager.DBModels.Models
+namespace StudentManager.DBModels
 {
     public class ApplicationUser: IdentityUser
     {

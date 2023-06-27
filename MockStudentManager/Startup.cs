@@ -12,7 +12,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MockStudentManager.Middlewares;
 using StudentManager.DBModels;
-using StudentManager.DBModels.Models;
 using StudentManager.IRepository;
 using StudentManager.Repository;
 using System;

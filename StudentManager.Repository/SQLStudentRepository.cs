@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using StudentManager.DBModels;
 using StudentManager.IRepository;
 using System;
@@ -20,6 +21,7 @@ namespace StudentManager.Repository
 
         public Student Add(Student student)
         {
+
             context.Students.Add(student);
             context.SaveChanges();
             return student;

@@ -3,12 +3,14 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Rewrite.Internal.UrlActions;
 using MockStudentManager.ViewModels;
-using StudentManager.DBModels.Models;
+using StudentManager.DBModels;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using System.Reflection;
+using Microsoft.AspNetCore.Http.Internal;
 
 namespace MockStudentManager.Controllers
 {
@@ -23,6 +25,8 @@ namespace MockStudentManager.Controllers
             this.roleManager = roleManager;
             this.userManager = userManager;
         }
+
+        #region 角色管理
 
         [HttpGet]
         public IActionResult CreateRole()
@@ -212,5 +216,106 @@ namespace MockStudentManager.Controllers
             return View();
         }
 
+        #endregion
+
+
+        #region 用户管理
+        [HttpGet]
+        public IActionResult ListUsers()
+        { 
+            var Users = userManager.Users.ToList();
+            return View(Users);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> EditUser(string id)
+        {
+            var user = await userManager.FindByIdAsync(id);
+
+            if (user == null)
+            {
+                ViewBag.ErrorMessage = $"无法找到ID为：{id}的用户";
+                return View("../Error/NotFound");
+            }
+
+            var userClaims = await userManager.GetClaimsAsync(user);
+            var userRoles = await userManager.GetRolesAsync(user);
+
+            var model = new EditUserViewModel() {
+                Id = user.Id,
+                Email= user.Email,
+                UserName = user.UserName,
+                City = user.City,
+                Claims = userClaims.Select(x => x.Value).ToList(),
+                Roles = userRoles.ToList(),
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditUser(EditUserViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await userManager.FindByIdAsync(model.Id);
+
+                if (user == null)
+                {
+                    ViewBag.ErrorMessage = $"无法找到ID为：{model.Id}的用户";
+                    return View("../Error/NotFound");
+                }
+                else
+                {
+                    user.Email = model.Email;
+                    user.UserName = model.UserName;
+                    user.City = model.City;
+                    var result = await userManager.UpdateAsync(user);
+
+                    if (result.Succeeded)
+                    {
+                        return RedirectToAction("ListUsers", "Admin");
+                    }
+
+                    foreach (var item in result.Errors)
+                    {
+                        ModelState.AddModelError("", item.Description);
+                    }
+
+                }
+            }
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteUser(string Id)
+        {
+            var user = await userManager.FindByIdAsync(Id);
+
+            if (user == null)
+            {
+                ViewBag.ErrorMessage = $"无法找到ID为：{Id}的用户";
+                return View("../Error/NotFound");
+            }
+            else
+            {
+                var result = await userManager.DeleteAsync(user);
+
+                if (result.Succeeded)
+                {
+                    return RedirectToAction("ListUsers", "Admin");
+                }
+
+                foreach (var item in result.Errors)
+                {
+                    ModelState.AddModelError("", item.Description);
+                }
+
+            }
+
+            return View();
+        }
+
+        #endregion
     }
 }

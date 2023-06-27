@@ -2,7 +2,6 @@
 @{
     ViewBag.Title = "学生列表页面";
 }
-<div class="card-deck">
     @foreach (var student in Model)
     {
         var photoPath = "~/images/" + (student.PhotoPath ?? "timg.jpg");
@@ -23,7 +22,6 @@
             </div>
         </div>
     }
-</div>
 
 
 @section Scripts{

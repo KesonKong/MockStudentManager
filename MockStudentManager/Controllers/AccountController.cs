@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MockStudentManager.ViewModels;
-using StudentManager.DBModels.Models;
+using StudentManager.DBModels;
 using System.Threading.Tasks;
 
 namespace MockStudentManager.Controllers
