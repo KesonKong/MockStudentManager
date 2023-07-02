@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MockStudentManager.Controllers
 {
+    [AllowAnonymous]
     public class ErrorController : Controller
     {
         private readonly ILogger<ErrorController> logger;
@@ -40,7 +41,6 @@ namespace MockStudentManager.Controllers
             return View("NotFound");
         }
 
-        [AllowAnonymous]
         [Route("Error")]
         public IActionResult Error()
         {
@@ -55,12 +55,6 @@ namespace MockStudentManager.Controllers
 
             return View("Error");
 
-        }
-
-        [AllowAnonymous]
-        public IActionResult NotFound()
-        {
-            return View();
         }
 
     }

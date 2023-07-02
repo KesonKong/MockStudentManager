@@ -42,4 +42,8 @@
 	  <ProjectReference Include="..\StudentManager.Repository\StudentManager.Repository.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Views\Error\" />
+	</ItemGroup>
+
 </Project>

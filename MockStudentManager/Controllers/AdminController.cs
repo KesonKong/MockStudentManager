@@ -1,16 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Rewrite.Internal.UrlActions;
 using MockStudentManager.ViewModels;
 using StudentManager.DBModels;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using System.Reflection;
-using Microsoft.AspNetCore.Http.Internal;
+using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace MockStudentManager.Controllers
 {
@@ -19,11 +17,13 @@ namespace MockStudentManager.Controllers
     {
         private readonly RoleManager<IdentityRole> roleManager;
         private readonly UserManager<ApplicationUser> userManager;
+        private readonly ILogger<AdminController> logger;
 
-        public AdminController(RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager)
+        public AdminController(RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager, ILogger<AdminController> logger)
         {
             this.roleManager = roleManager;
             this.userManager = userManager;
+            this.logger = logger;
         }
 
         #region 角色管理
@@ -71,6 +71,7 @@ namespace MockStudentManager.Controllers
             return View(listRoles);
         }
 
+        [Authorize(policy:"EditRolePolicy")]
         [HttpGet]
         public async Task<IActionResult> EditRole(string Id)
         {
@@ -80,7 +81,7 @@ namespace MockStudentManager.Controllers
             {
                 ViewBag.ErrorMessage = $"角色Id为{Id}的信息不存在";
 
-                return View("../Error/NotFound");
+                return View("NotFound");
             }
 
             var model = new EditRolwViewModel
@@ -112,7 +113,7 @@ namespace MockStudentManager.Controllers
             {
                 ViewBag.ErrorMessage = $"角色Id为{Model.RoleId}的信息不存在";
 
-                return View("../Error/NotFound");
+                return View("NotFound");
             }
             else
             {
@@ -146,7 +147,7 @@ namespace MockStudentManager.Controllers
             {
                 ViewBag.ErrorMessage = $"角色Id为{roleId}的信息不存在";
 
-                return View("../Error/NotFound");
+                return View("NotFound");
             }
 
             var model = new List<UserRoleViewModel>();
@@ -180,7 +181,7 @@ namespace MockStudentManager.Controllers
             {
                 ViewBag.ErrorMessage = $"角色Id为{roleId}的信息不存在";
 
-                return View("../Error/NotFound");
+                return View("NotFound");
             }
             else
             {
@@ -216,8 +217,49 @@ namespace MockStudentManager.Controllers
             return View();
         }
 
-        #endregion
 
+        [HttpPost]
+        public async Task<IActionResult> DeleteRole(string Id)
+        {
+            var role = await roleManager.FindByIdAsync(Id);
+
+            if (role == null)
+            {
+                ViewBag.ErrorMessage = $"无法找到ID为：{Id}的用户";
+                return View("NotFound");
+            }
+            else
+            {
+                try
+                {
+                    var result = await roleManager.DeleteAsync(role);
+
+                    if (result.Succeeded)
+                    {
+                        return RedirectToAction("ListRoles", "Admin");
+                    }
+
+                    foreach (var item in result.Errors)
+                    {
+                        ModelState.AddModelError("", item.Description);
+                    }
+                }
+                catch (DbUpdateException ex)
+                {
+                    logger.LogError($"发生异常：{ex}");
+                    ViewBag.ErrorTitle = $"角色：{role.Name}正在被使用中...";
+                    ViewBag.ErrorMessage = $"无法删除{role.Name}角色，因为此角色中刚已经存在用户。如果想要删除次角色，需要先删除该角色中的用户，然后再尝试删除";
+                    return View("Error");
+                }
+
+            }
+
+            return View();
+        }
+
+
+
+        #endregion
 
         #region 用户管理
         [HttpGet]
@@ -235,7 +277,7 @@ namespace MockStudentManager.Controllers
             if (user == null)
             {
                 ViewBag.ErrorMessage = $"无法找到ID为：{id}的用户";
-                return View("../Error/NotFound");
+                return View("NotFound");
             }
 
             var userClaims = await userManager.GetClaimsAsync(user);
@@ -263,7 +305,7 @@ namespace MockStudentManager.Controllers
                 if (user == null)
                 {
                     ViewBag.ErrorMessage = $"无法找到ID为：{model.Id}的用户";
-                    return View("../Error/NotFound");
+                    return View("NotFound");
                 }
                 else
                 {
@@ -295,7 +337,7 @@ namespace MockStudentManager.Controllers
             if (user == null)
             {
                 ViewBag.ErrorMessage = $"无法找到ID为：{Id}的用户";
-                return View("../Error/NotFound");
+                return View("NotFound");
             }
             else
             {
@@ -313,6 +355,163 @@ namespace MockStudentManager.Controllers
 
             }
 
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ManageUserRoles(string userId)
+        {
+            ViewBag.userId = userId;
+
+            var user = await userManager.FindByIdAsync(userId);
+
+            if (user == null)
+            {
+                ViewBag.ErrorMessage = $"无法找到ID为：{userId}的用户";
+                return View("NotFound");
+            }
+
+            var model = new List<RolesInUserViewModel>();
+
+            foreach (var role in roleManager.Roles)
+            {
+                var rolesInUserViewModel = new RolesInUserViewModel() { 
+                    RoleId = role.Id,
+                    RoleName = role.Name,
+                };
+
+                if (await userManager.IsInRoleAsync(user, role.Name))
+                {
+                    rolesInUserViewModel.IsSelected = true;
+                }
+                else
+                {
+                    rolesInUserViewModel.IsSelected = false;
+                }
+
+                model.Add(rolesInUserViewModel);
+            }
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ManageUserRoles(List<RolesInUserViewModel> model, string userId)
+        {
+            var user = await userManager.FindByIdAsync(userId);
+
+            if (user == null)
+            {
+                ViewBag.ErrorMessage = $"无法找到ID为：{userId}的用户";
+                return View("NotFound");
+            }
+
+            var roles = await userManager.GetRolesAsync(user);
+
+            //移除当前用户所有的角色信息
+            var result = await userManager.RemoveFromRolesAsync(user, roles);
+
+            if (!result.Succeeded)
+            {
+                ModelState.AddModelError("", "无法删除用户中的角色");
+                return View(model);
+            }
+            else
+            {
+                //查询出模型列表中被选中的rolename 添加到用户中
+                result = await userManager.AddToRolesAsync(user, model.Where(x => x.IsSelected).Select(y => y.RoleName));
+
+                if (!result.Succeeded)
+                {
+                    ModelState.AddModelError("", "无法删除用户中的角色");
+                    return View(model);
+                }
+            }
+
+            return RedirectToAction("EditUser", "Admin", new { Id = userId });
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> ManageUserClaims(string userId)
+        {
+            ViewBag.userId = userId;
+
+            var user = await userManager.FindByIdAsync(userId);
+
+            if (user == null)
+            {
+                ViewBag.ErrorMessage = $"无法找到ID为：{userId}的用户";
+                return View("NotFound");
+            }
+
+            //获取当前用户下所有的声明
+            var existingUserClaims = await userManager.GetClaimsAsync(user);
+
+            var model = new UserClaimsViewModel { UserId = userId};
+            //遍历所有的声明
+            foreach (var claim in ClaimsStore.GetClaims)
+            {
+                UserClaim userClaim = new UserClaim()
+                {
+                    ClaimType = claim.Type,
+                };
+
+                //如果选中声明，则IsSelected 为true
+                if (existingUserClaims.Any(c => c.Type == claim.Type))
+                {
+                    userClaim.IsSelected = true;
+                }
+
+                model.Claims.Add(userClaim);
+            }
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ManageUserClaims(UserClaimsViewModel model) {
+
+            var user = await userManager.FindByIdAsync(model.UserId);
+
+            if (user == null)
+            {
+                ViewBag.ErrorMessage = $"无法找到ID为：{model.UserId}的用户";
+                return View("NotFound");
+            }
+
+            //查找所有的声明
+            var claims = await userManager.GetClaimsAsync(user);
+
+            //移除当前用户所有的角色信息
+            var result = await userManager.RemoveClaimsAsync(user, claims);
+
+            if (!result.Succeeded)
+            {
+                ModelState.AddModelError("", "无法删除用户中的声明");
+                return View(model);
+            }
+            else
+            {
+                //查询出模型列表中被选中的rolename 添加到用户中
+                result = await userManager.AddClaimsAsync(user, model.Claims.Where(c => c.IsSelected).Select(c => new Claim(c.ClaimType, c.ClaimType)));
+
+                if (!result.Succeeded)
+                {
+                    ModelState.AddModelError("", "无法向用户添加选中的声明");
+                    return View(model);
+                }
+            }
+
+            return RedirectToAction("EditUser", "Admin", new { Id = model.UserId });
+        }
+
+        #endregion
+
+        #region 拒绝访问
+
+        [AllowAnonymous]
+        public IActionResult AccessDenied() {
             return View();
         }
 

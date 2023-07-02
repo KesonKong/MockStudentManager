@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace MockStudentManager.Controllers
 {
+    [Authorize] //Identity授权
     public class DepartmentController : Controller
     {
         public string List()

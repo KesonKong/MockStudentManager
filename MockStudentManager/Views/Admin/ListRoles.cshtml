@@ -18,8 +18,26 @@
                 <h5>@role.Name</h5>
             </div>
             <div class="card-foot">
-                <a class="btn btn-primary" asp-action="EditRole" asp-controller="Admin" asp-route-id="@role.Id">编辑</a>
-                <a class="btn btn-danger">删除</a>
+                <form method="post" asp-action="DeleteRole" asp-controller="Admin" asp-route-id="@role.Id">
+                    @inject IAuthorizationService authorizationService;
+                    @if ((await authorizationService.AuthorizeAsync(User, "EditRolePolicy")).Succeeded)
+                    {
+                        <a class="btn btn-primary" asp-action="EditRole" asp-controller="Admin" asp-route-id="@role.Id">编辑</a>
+                    }
+
+                    @if ((await authorizationService.AuthorizeAsync(User, "DeleteRolePolicy")).Succeeded)
+                    {
+                        <span id="confirmDeleteSpan_@role.Id" style="display:none">
+                            <span>你确定要删除？</span>
+                            <button type="submit" class="btn btn-danger">是</button>
+                            <a href="#" class="btn btn-primary" onclick="confirmDelete('@role.Id',false)">否</a>
+                        </span>
+                        <span id="deleteSpan_@role.Id">
+                            <a href="#" class="btn btn-danger" onclick="confirmDelete('@role.Id',true)">删除</a>
+                        </span>
+                    }
+                </form>
+
             </div>
         </div>    
         
@@ -32,3 +50,5 @@ else
     </div>
 
 }
+
+<script src="~/js/site.js" asp-append-version="true"></script>

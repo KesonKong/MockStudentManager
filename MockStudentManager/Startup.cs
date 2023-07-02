@@ -48,11 +48,40 @@ namespace MockStudentManager
                 option.Password.RequireUppercase = false;
             });
 
+
+            services.ConfigureApplicationCookie(option => { 
+                //修改拒绝访问的路由地址
+                option.AccessDeniedPath = new PathString("/Admin/AccessDenied");
+                //修改登录地址的路由
+                //option.LoginPath = new PathString("/Admin/Login");
+                //修改注销地址的路由
+                //option.LogoutPath = new PathString("/Admin/Logout");
+                //统一系统全局的Cookie名称
+                option.Cookie.Name = "MockSchoolCookieName";
+                //登录用户的Cookie有效期
+                option.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+                //是否对Cookie启用滑动过期时间
+                option.SlidingExpiration = true;
+            });
+
             //添加身份验证服务
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddErrorDescriber<CustomIdentityErrorDescriber>() //重写了认证重复信息
                 .AddEntityFrameworkStores<AppDbContext>();
-            
+
+            //添加用户声明授权
+            services.AddAuthorization(options => {
+
+                //策略结合声明授权
+                options.AddPolicy("DeleteRolePolicy", policy => policy.RequireClaim("Delete Role"));
+                options.AddPolicy("AdminRolePolicy", policy => policy.RequireRole("管理员"));
+
+                //策略结合多个角色进行授权
+                options.AddPolicy("SuperAdminRolePolicy", policy => policy.RequireClaim("管理员","普通用户"));
+                options.AddPolicy("EditRolePolicy",policy => policy.RequireClaim("Edit Role"));
+
+            });
+
             //添加MVC服务
             //AddXmlSerializerFormatters将XML序列化程序格式化程序添加到MVC中
             services.AddMvc(config=>
@@ -158,28 +187,28 @@ namespace MockStudentManager
 
             //Hello World
             //app.Run 是终端中间件，会使整个管道短路，从而不会调用管道中后续的中间件
-            //app.Run(async (context) =>
-            //{
+            app.Run(async (context) =>
+            {
                 //处理中文乱码
-                //context.Response.ContentType = "text/plain;charset=utf-8";
+                context.Response.ContentType = "text/plain;charset=utf-8";
                 //获取进程名
-                //var processName = System.Diagnostics.Process.GetCurrentProcess().ProcessName;
+                var processName = System.Diagnostics.Process.GetCurrentProcess().ProcessName;
 
                 //读取appSettings.json中的值
-                //var configVal = _configration["MyKey"];
+                var configVal = _configration["MyKey"];
 
-                //await context.Response.WriteAsync(configVal);
+                await context.Response.WriteAsync(configVal);
 
                 //throw new Exception("您的请求在管道中发生了一些错误");
 
-                //await context.Response.WriteAsync("Hello World!");
+                await context.Response.WriteAsync("Hello World!");
 
-                //logger.LogInformation("M3处理请求并生成响应");
+                logger.LogInformation("M3处理请求并生成响应");
 
-                //await context.Response.WriteAsync("Hosting Enviroment:" + env.EnvironmentName);
+                await context.Response.WriteAsync("Hosting Enviroment:" + env.EnvironmentName);
 
-            //});
+                });
 
-        }
+            }
     }
 }

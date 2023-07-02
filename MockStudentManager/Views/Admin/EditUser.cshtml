@@ -62,13 +62,13 @@
             }
         </div>
         <div class="card-foot">
-            <a class="btn btn-outline-primary"  style="width:auto">管理角色</a>
+            <a class="btn btn-outline-primary" asp-action="ManageUserRoles" asp-controller="Admin" asp-route-userId="@Model.Id" style="width:auto">管理角色</a>
         </div>
     </div>
 
 
     <div class="card mt-3">
-        <div class="card-header"><h3>用户生命</h3></div>
+        <div class="card-header"><h3>用户声明</h3></div>
         <div class="card-body">
             @if (Model.Claims.Any())
             {
@@ -84,7 +84,7 @@
             }
         </div>
         <div class="card-foot">
-            <a class="btn btn-outline-primary" style="width:auto">管理生命</a>
+            <a class="btn btn-outline-primary" style="width:auto" asp-action="ManageUserClaims" asp-route-userId="@Model.Id">管理声明</a>
         </div>
     </div>
 
